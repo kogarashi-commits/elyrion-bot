@@ -1,12 +1,8 @@
 import telebot
+import telebot
 import re
 import random
 import traceback
-import os
-from threading import Thread
-
-os.system('pip install flask')
-os.system('pip install pyTelegramBotAPI')
 
 TOKEN = "8752972622:AAFxVVcPPnmUYTtmWxDOc5xh0vB-UTdnicg"
 
@@ -2099,8 +2095,7 @@ words = {
 
 }
 
-# === ФУНКЦИИ ПЕРЕВОДА ===
-
+# === ФУНКЦИИ ===
 def translate_word(word):
     w = word.lower().strip()
     if w in words:
@@ -2112,19 +2107,15 @@ def translate_text(text):
     result = []
     transcript = []
     missing = []
-    
     for w in words_list:
         el, tr = translate_word(w)
         result.append(el)
         transcript.append(tr)
         if el == w:
             missing.append(w)
-    
     output = " ".join(result) + "\n\n" + " ".join(transcript)
-    
     if missing:
         output += f"\n\n❌ Нет в словаре: {', '.join(missing)}"
-    
     return output
 
 def reverse_translate(text):
@@ -2132,19 +2123,15 @@ def reverse_translate(text):
     reverse_words = {v[0]: k for k, v in words.items()}
     result = []
     missing = []
-    
     for w in words_list:
         if w in reverse_words:
             result.append(reverse_words[w])
         else:
             result.append(w)
             missing.append(w)
-    
     output = " ".join(result)
-    
     if missing:
         output += f"\n\n❌ Нет в словаре: {', '.join(missing)}"
-    
     return output
 
 def detect_language(text):
@@ -2152,104 +2139,6 @@ def detect_language(text):
         return "ru"
     return "el"
 
-# === СТАТИСТИКА ===
-@bot.message_handler(commands=['stats'])
-def send_stats(message):
-    total_words = len(words)
-    stats_text = f"""📊 Статистика словаря
-
-Всего слов: {total_words}
-Уникальных русских слов: {total_words}
-
-Blood on the Banners
-Словарь продолжает пополняться."""
-    bot.reply_to(message, stats_text, parse_mode="Markdown")
-
-# === ПОЖЕЛАНИЕ ДНЯ ===
-import random
-
-daily_wishes = [
-    ("Пусть твой день будет ясным, как утреннее небо над Элдертайдом.", "Aethel te di man aethel vandir eldertaid."),
-    ("Желаю тебе силы древних драконов.", "En vel te gor thalak her."),
-    ("Пусть удача сопутствует тебе во всех начинаниях.", "Bor fort te ith zel acta."),
-    ("Желаю мира и спокойствия твоему дому.", "En vel te pax et pax teir veldris."),
-    ("Пусть твоя честь сияет ярче золота.", "Thirion te luc mag solvar."),
-    ("Желаю тебе побед и славы.", "En vel te vinkar et glor."),
-    ("Пусть твой меч всегда будет острым, а враги — слабыми.", "Kharad te zel acut, inim te zel infirm."),
-    ("Желаю тебе найти свой путь даже в самой тёмной ночи.", "En vel te inv teir via et ith tenebr noct."),
-    ("Пусть кровь и огонь будут на стороне твоей.", "Khovar et zharek teir side."),
-    ("Желаю тебе мудрости древних и силы молодости.", "En vel te sap her et gor iun."),
-]
-
-@bot.message_handler(commands=['wish'])
-def send_wish(message):
-    wish_ru, wish_el = random.choice(daily_wishes)
-    wish_text = f"✨ Пожелание дня ✨\n\n{wish_ru}\n\n{wish_el}\n\n«Sól émar sévhen, sól émar mórtis habent»"
-    bot.reply_to(message, wish_text, parse_mode="Markdown")
-
-# === ДРЕВНИЕ ЦИТАТЫ ===
-ancient_quotes = [
-    ("Когда дракон просыпается, горы дрожат.", "Tel thalak vig, korthum trem."),
-    ("Кровь, пролитая за честь, не умирает.", "Khovar fus pro thirion, nar mor."),
-    ("Тьма всегда отступает перед светом.", "Tenebr zel per aethel."),
-    ("Закон — это меч, а справедливость — щит.", "Vandir est glad, just est scut."),
-    ("Император — это воля народа, а народ — сила империи.", "Aelthar est vol narim, narim est gor imper."),
-    ("Дракон не летит один. Его крылья — это его народ.", "Thalak nar ves an. Teir al est teir narim."),
-]
-
-@bot.message_handler(commands=['quote'])
-def send_quote(message):
-    ru, el = random.choice(ancient_quotes)
-    quote_text = f"📜 Древняя цитата\n\n{ru}\n\n{el}"
-    bot.reply_to(message, quote_text, parse_mode="Markdown")
-
-# === СЛОВО ДНЯ ===
-@bot.message_handler(commands=['word'])
-def word_of_day(message):
-    try:
-        ru_words = list(words.keys())
-        if not ru_words:
-            bot.reply_to(message, "Словарь пока пуст.")
-            return
-        ru_word = random.choice(ru_words)
-        el_word, trans = words[ru_word]
-        word_text = f"Слово дня\n\n{ru_word} — {el_word}\n\nТранскрипция: {trans}\n\nПопробуй использовать его сегодня!"
-        bot.reply_to(message, word_text, parse_mode="Markdown")
-    except Exception as e:
-        bot.reply_to(message, f"Ошибка: {e}")
-        traceback.print_exc()
-
-# === ИНСТРУКЦИЯ ===
-@bot.message_handler(commands=['howto'])
-def howto(message):
-    howto_text = """❓ Как использовать бота:
-
-1. Напиши слово или фразу на русском — бот переведёт на элирийский.
-2. Напиши слово на элирийском — бот переведёт на русский.
-
-Если слова нет в словаре, бот напишет об этом и предложит обратиться к @fxwree"""
-    bot.reply_to(message, howto_text, parse_mode="Markdown")
-
-# === СПИСОК КОМАНД ===
-@bot.message_handler(commands=['commands'])
-def send_commands(message):
-    commands_text = """📋 Доступные команды:
-
-/start - приветствие
-/commands - список команд
-/stats - статистика словаря
-/wish - пожелание дня
-/quote - древняя цитата
-/word - слово дня
-/howto - инструкция
-
-Примеры:
-дом → veldris
-красивый дракон → pulcher thalak
-я люблю тебя → en lil te"""
-    bot.reply_to(message, commands_text, parse_mode="Markdown")
-
-# === ПРИВЕТСТВИЕ ===
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
     welcome_text = """*«Sól émar sévhen, sól émar mórtis habent»*
@@ -2260,17 +2149,32 @@ def send_welcome(message):
 
 Доступные команды: /commands
 
-Возможности бота постепенно расширяются. Словарь пополняется с каждым обновлением.
-
-При обнаружении ошибки или отсутствия отклика бота – обратитесь к @fxwree"""
+При обнаружении ошибки – обратитесь к @fxwree"""
     bot.reply_to(message, welcome_text, parse_mode="Markdown")
 
-# === ОБРАБОТЧИК СООБЩЕНИЙ ===
+@bot.message_handler(commands=['commands'])
+def send_commands(message):
+    commands_text = """Доступные команды:
+
+/start - приветствие
+/commands - список команд
+/stats - статистика словаря
+/wish - пожелание дня
+/quote - древняя цитата
+/word - слово дня
+/howto - инструкция"""
+    bot.reply_to(message, commands_text, parse_mode="Markdown")
+
+@bot.message_handler(commands=['stats'])
+def send_stats(message):
+    total_words = len(words)
+    stats_text = f"Статистика словаря\n\nВсего слов: {total_words}"
+    bot.reply_to(message, stats_text, parse_mode="Markdown")
+
 @bot.message_handler(func=lambda message: True)
 def handle_message(message):
     text = message.text.strip()
     lang = detect_language(text)
-    
     if lang == "ru":
         result = translate_text(text)
         bot.reply_to(message, result)
@@ -2278,18 +2182,5 @@ def handle_message(message):
         result = reverse_translate(text)
         bot.reply_to(message, result)
 
-# === ВЕБ-СЕРВЕР ДЛЯ RENDER ===
-app = Flask('')
-
-@app.route('/')
-def home():
-    return "Бот работает"
-
-def run():
-    app.run(host='0.0.0.0', port=8080)
-
-Thread(target=run).start()
-
-# === ЗАПУСК БОТА ===
 print("✅ Бот Элирийский запущен!")
 bot.infinity_polling()
