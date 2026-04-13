@@ -1,4 +1,4 @@
-import import telebot
+import telebot
 import re
 import random
 import traceback
