@@ -2,8 +2,11 @@ import telebot
 import re
 import random
 import traceback
-from flask import Flask
+import os
 from threading import Thread
+
+os.system('pip install flask')
+os.system('pip install pyTelegramBotAPI')
 
 TOKEN = "8752972622:AAFxVVcPPnmUYTtmWxDOc5xh0vB-UTdnicg"
 
